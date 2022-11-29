@@ -1,14 +1,13 @@
 import { useEffect, useState } from 'react';
+import { SpinnerCircular } from 'spinners-react';
 import Card from './Card';
 import SearchBar from './SearchBar';
-
-// TODO: modal for detail
-// TODO: loading component
 
 const BookCards = () => {
 	const [searchText, setSearchText] = useState('');
 	const [isLoading, setIsLoading] = useState(false);
-	const [data, setData] = useState(null);
+	const [data, setData] = useState([]);
+	const [url, setUrl] = useState('');
 
 	const handleSearchBarOnChange = (event) => {
 		setSearchText(event.target.value);
@@ -21,55 +20,56 @@ const BookCards = () => {
 
 		event.target.value = '';
 		setIsLoading(true);
-
-		try {
-			const response = await fetch(
-				`https://www.googleapis.com/books/v1/volumes?q=intitle:${encodeURI(
-					searchText
-				)}&printType=books&orderBy=newest&maxResults=40`,
-				{
-					method: 'GET',
-					headers: {
-						Accept: 'application/json',
-					},
-				}
-			);
-
-			if (!response.ok) {
-				throw new Error(`Error! status: ${response.status}`);
-			}
-
-			const result = await response.json();
-			setData(result);
-		} catch (error) {
-			console.log(error);
-		} finally {
-			setIsLoading(false);
-		}
+		setUrl(
+			`https://www.googleapis.com/books/v1/volumes?q=intitle:${encodeURI(
+				searchText
+			)}&printType=books&orderBy=newest&maxResults=40`
+		);
 	};
 
 	useEffect(() => {
-		console.log(isLoading);
-		console.log(data);
-	}, [data, isLoading]);
+		const fetchData = async () => {
+			await fetch(url, {
+				method: 'GET',
+				headers: {
+					Accept: 'application/json',
+				},
+			})
+				.then((resp) => resp.json())
+				.then((data) => setData(data.items))
+				.catch((err) => console.log(err))
+				.finally(() => setIsLoading(false));
+		};
+
+		fetchData();
+	}, [url]);
 
 	return (
 		<>
-			<div className='flex justify-center mt-12'>
-				<SearchBar
-					handleSearchBarOnChange={handleSearchBarOnChange}
-					handleSearchBarKeyDown={handleSearchBarKeyDown}
-				/>
-			</div>
+			<SearchBar
+				handleSearchBarOnChange={handleSearchBarOnChange}
+				handleSearchBarKeyDown={handleSearchBarKeyDown}
+			/>
+
 			<div className='flex justify-center'>
 				<div className='flex flex-wrap justify-center w-10/12 mt-12 md:w-4/5'>
 					{data &&
-						data.items.map((data, index) => (
-							<Card
-								key={index}
-								thumbnail={data.volumeInfo.imageLinks.thumbnail}
-								title={data.volumeInfo.title}
-							/>
+						(!isLoading ? (
+							data.map((item, index) => (
+								<Card
+									key={index}
+									thumbnail={item.volumeInfo.imageLinks?.thumbnail}
+									title={item.volumeInfo.title}
+									desc={item.volumeInfo.description}
+									page={item.volumeInfo.pageCount}
+									publisher={item.volumeInfo.publisher}
+									publishDate={item.volumeInfo.publishedDate}
+								/>
+							))
+						) : (
+							<div className='mt-20'>
+								<SpinnerCircular color='#facc15' />
+							</div>
 						))}
 				</div>
 			</div>

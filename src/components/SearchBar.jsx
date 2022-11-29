@@ -2,10 +2,11 @@ import React from 'react';
 
 const SearchBar = ({ handleSearchBarOnChange, handleSearchBarKeyDown }) => {
 	return (
-		<div className='mb-3 md:w-96'>
-			<input
-				type='search'
-				className='
+		<div className='flex justify-center mt-12'>
+			<div className='mb-3 md:w-96'>
+				<input
+					type='search'
+					className='
                 form-control
                 block
                 w-full
@@ -22,11 +23,12 @@ const SearchBar = ({ handleSearchBarOnChange, handleSearchBarKeyDown }) => {
                 m-0
                 focus:text-gray-700 focus:bg-white focus:border-yellow-400 focus:ring-1 focus:ring-yellow-400 focus:outline-none
                 '
-				id='bookSearch'
-				placeholder='Enter book title..'
-				onChange={handleSearchBarOnChange}
-				onKeyDown={handleSearchBarKeyDown}
-			/>
+					id='bookSearch'
+					placeholder='Enter book title..'
+					onChange={handleSearchBarOnChange}
+					onKeyDown={handleSearchBarKeyDown}
+				/>
+			</div>
 		</div>
 	);
 };
